@@ -1,0 +1,627 @@
+Below is a complete single-file ecommerce website. Save it as `index.html` and open it in a browser.
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaShop — Modern Ecommerce</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#6c5ce7;
+  --dark:#171717;
+  --muted:#777;
+  --bg:#f7f7fb;
+  --white:#fff;
+  --danger:#ef476f;
+}
+body{
+  font-family:Inter,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--dark);
+}
+button,input{font:inherit}
+button{cursor:pointer;border:0}
+
+header{
+  background:#fff;
+  position:sticky;
+  top:0;
+  z-index:100;
+  border-bottom:1px solid #eee;
+}
+.nav{
+  max-width:1200px;
+  margin:auto;
+  padding:18px 20px;
+  display:flex;
+  align-items:center;
+  gap:25px;
+}
+.logo{
+  font-size:25px;
+  font-weight:800;
+  color:var(--primary);
+  margin-right:auto;
+}
+.search{
+  width:330px;
+  padding:11px 16px;
+  border:1px solid #ddd;
+  border-radius:25px;
+  outline:none;
+}
+.cart-btn{
+  background:var(--dark);
+  color:#fff;
+  padding:11px 17px;
+  border-radius:25px;
+}
+.cart-count{
+  background:var(--danger);
+  padding:2px 7px;
+  border-radius:20px;
+  margin-left:5px;
+}
+
+.hero{
+  max-width:1200px;
+  margin:25px auto;
+  padding:60px 45px;
+  border-radius:25px;
+  background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+  color:white;
+  overflow:hidden;
+}
+.hero h1{font-size:48px;max-width:600px;margin-bottom:15px}
+.hero p{font-size:18px;opacity:.9;margin-bottom:25px}
+.hero button{
+  padding:13px 23px;
+  border-radius:25px;
+  background:#fff;
+  color:var(--primary);
+  font-weight:700;
+}
+
+.container{max-width:1200px;margin:35px auto;padding:0 20px}
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+.section-head h2{font-size:28px}
+
+.categories{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.category{
+  padding:10px 18px;
+  background:white;
+  border:1px solid #ddd;
+  border-radius:22px;
+}
+.category.active,.category:hover{
+  background:var(--primary);
+  color:#fff;
+  border-color:var(--primary);
+}
+
+.products{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+.card{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  transition:.25s;
+  box-shadow:0 4px 15px rgba(0,0,0,.04);
+}
+.card:hover{transform:translateY(-5px)}
+.product-img{
+  height:220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:75px;
+  background:#f1efff;
+}
+.card-body{padding:17px}
+.category-label{font-size:12px;color:var(--primary);font-weight:700}
+.card h3{margin:7px 0;font-size:17px}
+.price{font-weight:800;font-size:19px}
+.old-price{
+  color:#aaa;
+  text-decoration:line-through;
+  font-size:13px;
+  margin-left:5px;
+}
+.rating{color:#f5a623;font-size:13px;margin:7px 0}
+.add{
+  width:100%;
+  padding:11px;
+  background:var(--dark);
+  color:#fff;
+  border-radius:10px;
+  margin-top:10px;
+}
+.add:hover{background:var(--primary)}
+
+footer{
+  margin-top:60px;
+  padding:40px 20px;
+  background:#171717;
+  color:#aaa;
+  text-align:center;
+}
+
+/* Cart */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:150;
+}
+.overlay.show{display:block}
+.cart{
+  position:fixed;
+  right:-430px;
+  top:0;
+  width:400px;
+  max-width:95%;
+  height:100%;
+  background:#fff;
+  z-index:200;
+  padding:25px;
+  transition:.3s;
+  display:flex;
+  flex-direction:column;
+}
+.cart.open{right:0}
+.cart-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-bottom:18px;
+  border-bottom:1px solid #eee;
+}
+.close{background:none;font-size:25px}
+.cart-items{flex:1;overflow:auto;padding:15px 0}
+.cart-item{
+  display:flex;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid #eee;
+}
+.cart-icon{
+  width:60px;
+  height:60px;
+  border-radius:10px;
+  background:#f1efff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+}
+.item-info{flex:1}
+.item-info h4{margin-bottom:5px}
+.qty{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:7px;
+}
+.qty button{
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:#eee;
+}
+.remove{color:var(--danger);font-size:12px;background:none}
+.cart-footer{border-top:1px solid #eee;padding-top:18px}
+.total{
+  display:flex;
+  justify-content:space-between;
+  font-size:21px;
+  font-weight:800;
+  margin-bottom:15px;
+}
+.checkout{
+  width:100%;
+  background:var(--primary);
+  color:#fff;
+  padding:14px;
+  border-radius:10px;
+  font-weight:700;
+}
+.empty{text-align:center;color:#999;margin-top:60px}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:25px;
+  left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:#171717;
+  color:#fff;
+  padding:13px 20px;
+  border-radius:30px;
+  z-index:500;
+  transition:.3s;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:900px){
+  .products{grid-template-columns:repeat(3,1fr)}
+  .search{width:220px}
+}
+@media(max-width:650px){
+  .nav{gap:10px}
+  .search{display:none}
+  .hero{margin:15px;padding:40px 25px}
+  .hero h1{font-size:35px}
+  .products{grid-template-columns:repeat(2,1fr);gap:12px}
+  .product-img{height:170px;font-size:60px}
+}
+@media(max-width:420px){
+  .products{grid-template-columns:1fr}
+  .cart{width:100%}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <nav class="nav">
+    <div class="logo">NovaShop</div>
+
+    <input
+      id="search"
+      class="search"
+      type="text"
+      placeholder="Search products..."
+    >
+
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>Everything you want, all in one place.</h1>
+  <p>Discover stylish products at prices you'll love.</p>
+  <button onclick="scrollToProducts()">Shop Now →</button>
+</section>
+
+<main class="container">
+
+  <div class="section-head">
+    <h2>Categories</h2>
+  </div>
+
+  <div class="categories" id="categories">
+    <button class="category active" onclick="filterCategory('All',this)">All</button>
+    <button class="category" onclick="filterCategory('Fashion',this)">Fashion</button>
+    <button class="category" onclick="filterCategory('Electronics',this)">Electronics</button>
+    <button class="category" onclick="filterCategory('Home',this)">Home</button>
+    <button class="category" onclick="filterCategory('Accessories',this)">Accessories</button>
+  </div>
+
+  <div class="section-head" style="margin-top:40px">
+    <h2>Featured Products</h2>
+    <span id="resultCount"></span>
+  </div>
+
+  <div class="products" id="products"></div>
+
+</main>
+
+<footer>
+  <h3 style="color:white;margin-bottom:10px">NovaShop</h3>
+  <p>© 2026 NovaShop. All rights reserved.</p>
+</footer>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+<aside class="cart" id="cart">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button class="close" onclick="closeCart()">×</button>
+  </div>
+
+  <div class="cart-items" id="cartItems"></div>
+
+  <div class="cart-footer">
+    <div class="total">
+      <span>Total</span>
+      <span id="total">₹0</span>
+    </div>
+    <button class="checkout" onclick="checkout()">Proceed to Checkout</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const products = [
+  {
+    id:1,
+    name:"Classic Sneakers",
+    category:"Fashion",
+    price:2499,
+    oldPrice:3299,
+    rating:4.8,
+    icon:"👟"
+  },
+  {
+    id:2,
+    name:"Wireless Headphones",
+    category:"Electronics",
+    price:3999,
+    oldPrice:5499,
+    rating:4.7,
+    icon:"🎧"
+  },
+  {
+    id:3,
+    name:"Minimal Watch",
+    category:"Accessories",
+    price:1899,
+    oldPrice:2499,
+    rating:4.6,
+    icon:"⌚"
+  },
+  {
+    id:4,
+    name:"Smartphone",
+    category:"Electronics",
+    price:24999,
+    oldPrice:28999,
+    rating:4.9,
+    icon:"📱"
+  },
+  {
+    id:5,
+    name:"Travel Backpack",
+    category:"Fashion",
+    price:1599,
+    oldPrice:2199,
+    rating:4.5,
+    icon:"🎒"
+  },
+  {
+    id:6,
+    name:"Desk Lamp",
+    category:"Home",
+    price:999,
+    oldPrice:1499,
+    rating:4.4,
+    icon:"💡"
+  },
+  {
+    id:7,
+    name:"Coffee Maker",
+    category:"Home",
+    price:3499,
+    oldPrice:4499,
+    rating:4.7,
+    icon:"☕"
+  },
+  {
+    id:8,
+    name:"Sunglasses",
+    category:"Accessories",
+    price:1299,
+    oldPrice:1799,
+    rating:4.5,
+    icon:"🕶️"
+  }
+];
+
+let cart = JSON.parse(localStorage.getItem("novashop-cart")) || [];
+let activeCategory = "All";
+
+const productsEl = document.getElementById("products");
+const searchEl = document.getElementById("search");
+
+function money(value){
+  return "₹" + value.toLocaleString("en-IN");
+}
+
+function renderProducts(){
+  const query = searchEl.value.toLowerCase();
+
+  const filtered = products.filter(p =>
+    (activeCategory === "All" || p.category === activeCategory) &&
+    (
+      p.name.toLowerCase().includes(query) ||
+      p.category.toLowerCase().includes(query)
+    )
+  );
+
+  document.getElementById("resultCount").textContent =
+    `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`;
+
+  if(!filtered.length){
+    productsEl.innerHTML =
+      `<p style="grid-column:1/-1;text-align:center;padding:50px;color:#888">
+        No products found.
+      </p>`;
+    return;
+  }
+
+  productsEl.innerHTML = filtered.map(p => `
+    <article class="card">
+      <div class="product-img">${p.icon}</div>
+
+      <div class="card-body">
+        <div class="category-label">${p.category.toUpperCase()}</div>
+
+        <h3>${p.name}</h3>
+
+        <div class="rating">
+          ★★★★★ <span style="color:#777">${p.rating}</span>
+        </div>
+
+        <div class="price">
+          ${money(p.price)}
+          <span class="old-price">${money(p.oldPrice)}</span>
+        </div>
+
+        <button class="add" onclick="addToCart(${p.id})">
+          Add to Cart
+        </button>
+      </div>
+    </article>
+  `).join("");
+}
+
+function addToCart(id){
+  const existing = cart.find(item => item.id === id);
+
+  if(existing){
+    existing.qty++;
+  }else{
+    cart.push({id,qty:1});
+  }
+
+  saveCart();
+  updateCart();
+  showToast("Added to cart ✓");
+}
+
+function updateCart(){
+  const count = cart.reduce((sum,item) => sum + item.qty,0);
+  document.getElementById("cartCount").textContent = count;
+
+  const cartItems = document.getElementById("cartItems");
+
+  if(!cart.length){
+    cartItems.innerHTML =
+      `<div class="empty">Your cart is empty 🛒</div>`;
+    document.getElementById("total").textContent = "₹0";
+    return;
+  }
+
+  let total = 0;
+
+  cartItems.innerHTML = cart.map(item => {
+    const product = products.find(p => p.id === item.id);
+    const subtotal = product.price * item.qty;
+    total += subtotal;
+
+    return `
+      <div class="cart-item">
+        <div class="cart-icon">${product.icon}</div>
+
+        <div class="item-info">
+          <h4>${product.name}</h4>
+          <div>${money(product.price)}</div>
+
+          <div class="qty">
+            <button onclick="changeQty(${product.id},-1)">−</button>
+            <span>${item.qty}</span>
+            <button onclick="changeQty(${product.id},1)">+</button>
+          </div>
+
+          <button class="remove" onclick="removeItem(${product.id})">
+            Remove
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("total").textContent = money(total);
+}
+
+function changeQty(id, amount){
+  const item = cart.find(i => i.id === id);
+  if(!item) return;
+
+  item.qty += amount;
+
+  if(item.qty <= 0){
+    cart = cart.filter(i => i.id !== id);
+  }
+
+  saveCart();
+  updateCart();
+}
+
+function removeItem(id){
+  cart = cart.filter(item => item.id !== id);
+  saveCart();
+  updateCart();
+  showToast("Item removed");
+}
+
+function saveCart(){
+  localStorage.setItem("novashop-cart",JSON.stringify(cart));
+}
+
+function openCart(){
+  document.getElementById("cart").classList.add("open");
+  document.getElementById("overlay").classList.add("show");
+}
+
+function closeCart(){
+  document.getElementById("cart").classList.remove("open");
+  document.getElementById("overlay").classList.remove("show");
+}
+
+function checkout(){
+  if(!cart.length){
+    showToast("Your cart is empty");
+    return;
+  }
+
+  alert("Demo checkout — connect this button to your payment system.");
+}
+
+function filterCategory(category,button){
+  activeCategory = category;
+
+  document.querySelectorAll(".category")
+    .forEach(btn => btn.classList.remove("active"));
+
+  button.classList.add("active");
+  renderProducts();
+}
+
+function showToast(message){
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  },2000);
+}
+
+function scrollToProducts(){
+  document.querySelector(".products")
+    .scrollIntoView({behavior:"smooth"});
+}
+
+searchEl.addEventListener("input",renderProducts);
+
+renderProducts();
+updateCart();
+</script>
+
+</body>
+</html>
+```
